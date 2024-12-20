@@ -117,5 +117,17 @@ public class Home extends AppCompatActivity {
             }
         });
 
+        solvedQuizzes.setOnClickListener(view -> {
+            Intent i = new Intent(Home.this, ListQuizzes.class);
+            i.putExtra("Operation", "List Solved Quizzes");
+            startActivity(i);
+        });
+
+        your_quizzes.setOnClickListener(view -> {
+            Intent i = new Intent(Home.this, ListQuizzes.class);
+            i.putExtra("Operation", "List Created Quizzes");
+            startActivity(i);
+        });
+
     }
 }
