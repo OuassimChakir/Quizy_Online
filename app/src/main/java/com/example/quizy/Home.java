@@ -3,6 +3,7 @@ package com.example.quizy;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -49,7 +50,7 @@ public class Home extends AppCompatActivity {
         TextView total_questions = findViewById(R.id.total_questions);
         TextView total_points = findViewById(R.id.total_points);
         Button startQuiz = findViewById(R.id.startQuiz);
-        Button reateQuiz = findViewById(R.id.createQuiz);
+        Button createQuiz = findViewById(R.id.createQuiz);
         RelativeLayout solvedQuizzes = findViewById(R.id.solvedQuizzes);
         RelativeLayout your_quizzes = findViewById(R.id.your_quizzes);
         EditText quiz_title = findViewById(R.id.quiz_title);
@@ -88,6 +89,32 @@ public class Home extends AppCompatActivity {
             Intent i = new Intent(Home.this, MainActivity.class);
             startActivity(i);
             finish();
+        });
+
+        createQuiz.setOnClickListener(view -> {
+            String quizTitle = quiz_title.getText().toString();
+            if(quizTitle.isEmpty()){
+                quiz_title.setError("Please enter a title");
+                quiz_title.requestFocus();
+            } else {
+                Intent i = new Intent(Home.this, ExamEditor.class);
+                i.putExtra("Quiz Title", quizTitle);
+                quiz_title.setText("");
+                startActivity(i);
+            }
+        });
+
+        startQuiz.setOnClickListener(view -> {
+            String quizID = start_quiz_id.getText().toString();
+            if(quizID.isEmpty()){
+                start_quiz_id.setError("Please enter a quiz ID");
+                start_quiz_id.requestFocus();
+            } else {
+                Intent i = new Intent(Home.this, Exam.class);
+                i.putExtra("Quiz ID", quizID);
+                start_quiz_id.setText("");
+                startActivity(i);
+            }
         });
 
     }
