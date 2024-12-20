@@ -57,11 +57,11 @@ public class Question {
         this.correctAnswer = correctAnswer;
     }
 
-    public int getSeletedAnswer() {
+    public int getSelectedAnswer() {
         return seletedAnswer;
     }
 
-    public void setSeletedAnswer(int seletedAnswer) {
+    public void setSelectedAnswer(int seletedAnswer) {
         this.seletedAnswer = seletedAnswer;
     }
 }

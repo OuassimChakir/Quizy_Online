@@ -106,6 +106,7 @@
                             android:imeOptions="actionDone"
                             android:layout_marginBottom="10dp"
                             android:hint="Quiz ID"
+                            android:textColorHint="@color/black"
                             android:layout_toLeftOf="@+id/startQuiz" />
 
                     </RelativeLayout>
@@ -252,10 +253,11 @@
                             android:padding="10dp"
                             android:background="@drawable/white_edittext"
                             android:textColor="@color/black"
-                            android:inputType="numberSigned"
+                            android:inputType="text"
                             android:imeOptions="actionDone"
                             android:layout_marginBottom="10dp"
                             android:hint="Quiz Title"
+                            android:textColorHint="@color/black"
                             android:layout_toLeftOf="@+id/createQuiz" />
 
                     </RelativeLayout>

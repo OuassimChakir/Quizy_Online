@@ -32,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class ListQuizzes extends AppCompatActivity {
+
     private String oper;
     private boolean showGrade;
     private boolean solvedQuizzes;
@@ -40,25 +41,24 @@ public class ListQuizzes extends AppCompatActivity {
     private String uid;
     private ArrayList<String> ids;
     private ArrayList<String> grades;
-
     private String quizID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_list_quizzes);
 
         oper = getIntent().getStringExtra("Operation");
         TextView title = findViewById(R.id.title);
-        ListView listView = findViewById(R.id.listview);
+        ListView listview = findViewById(R.id.listview);
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         ids = new ArrayList<>();
         grades = new ArrayList<>();
         ArrayList<String> data = new ArrayList<>();
+
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-        if(oper.equals("List Solved Quizzes")) {
+        if (oper.equals("List Solved Quizzes")) {
             showGrade = false;
             solvedQuizzes = true;
         } else if (oper.equals("List Created Quizzes")) {
@@ -69,83 +69,85 @@ public class ListQuizzes extends AppCompatActivity {
             title.setText(quizID);
             quizGrades = true;
             showGrade = true;
-            title.setOnLongClickListener(view -> {
+            title.setOnLongClickListener(v -> {
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("Quiz ID", String.valueOf(quizID));
+                ClipData clip = ClipData.newPlainText("Quiz ID", quizID);
                 clipboard.setPrimaryClip(clip);
                 return true;
             });
         }
 
-        if(solvedQuizzes){
+        if (solvedQuizzes) {
             ValueEventListener listener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     DataSnapshot ds = snapshot.child("Users").child(uid).child("Quizzes Solved");
-                    for (DataSnapshot child : ds.getChildren()) {
-                        ids.add(child.getKey());
-                        data.add(snapshot.child("Quizzes").child(child.getKey()).child("Title").getValue().toString());
+                    for (DataSnapshot f : ds.getChildren()) {
+                        ids.add(f.getKey());
+                        data.add(snapshot.child("Quizzes").child(f.getKey()).child("Title").getValue().toString());
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(ListQuizzes.this, "Can't Connet", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ListQuizzes.this, "Can't connect", Toast.LENGTH_SHORT).show();
                 }
             };
             database.addValueEventListener(listener);
-        } else if(createdQuizzes){
+        } else if (createdQuizzes) {
             ValueEventListener listener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     DataSnapshot ds = snapshot.child("Users").child(uid).child("Quizzes Created");
-                    for (DataSnapshot child : ds.getChildren()) {
-                        ids.add(child.getKey());
-                        data.add(snapshot.child("Quizzes").child(child.getKey()).child("Title").getValue().toString());
+                    for (DataSnapshot f : ds.getChildren()) {
+                        ids.add(f.getKey());
+                        data.add(snapshot.child("Quizzes").child(f.getKey()).child("Title").getValue().toString());
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(ListQuizzes.this, "Can't Connet", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ListQuizzes.this, "Can't connect", Toast.LENGTH_SHORT).show();
                 }
             };
-
             database.addValueEventListener(listener);
         } else if (quizGrades) {
             ValueEventListener listener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     DataSnapshot ds = snapshot.child("Quizzes").child(quizID).child("Answers");
-                    for (DataSnapshot child : ds.getChildren()) {
-                        ids.add(child.getKey());
-                        String firstName = snapshot.child("Users").child(child.getKey()).child("First Name").getValue().toString();
-                        String lastName = snapshot.child("Users").child(child.getKey()).child("Last Name").getValue().toString();
-
+                    for (DataSnapshot f : ds.getChildren()) {
+                        ids.add(f.getKey());
+                        String firstName = snapshot.child("Users").child(f.getKey())
+                                .child("First Name").getValue().toString();
+                        String lastName = snapshot.child("Users").child(f.getKey())
+                                .child("Last Name").getValue().toString();
                         data.add(firstName + " " + lastName);
-                        String points = snapshot.child("Quizzes").child(quizID).child("Answers").child(child.getKey()).child("Points").getValue().toString();
-
-                        String total = snapshot.child("Quizzes").child(quizID).child("Total Questions").getValue().toString();
-                        String grade = points + "/" + total;
+                        String points = snapshot.child("Quizzes").child(quizID)
+                                .child("Answers").child(f.getKey()).child("Points")
+                                .getValue().toString();
+                        String total = snapshot.child("Quizzes").child(quizID)
+                                .child("Total Questions").getValue().toString();
+                        String grade = points+"/"+total;
                         grades.add(grade);
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(ListQuizzes.this, "Can't Connet", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ListQuizzes.this, "Can't connect", Toast.LENGTH_SHORT).show();
                 }
             };
-
             database.addValueEventListener(listener);
         }
         ListAdapter listAdapter = new ListAdapter(data);
-        listView.setAdapter(listAdapter);
+        listview.setAdapter(listAdapter);
     }
 
     public class ListAdapter extends BaseAdapter {
         ArrayList<String> arr;
-        ListAdapter(ArrayList<String> arr2){
+
+        ListAdapter(ArrayList<String> arr2) {
             arr = arr2;
         }
 
@@ -155,55 +157,59 @@ public class ListQuizzes extends AppCompatActivity {
         }
 
         @Override
-        public Object getItem(int position) {
-            return arr.get(position);
+        public Object getItem(int i) {
+            return arr.get(i);
         }
 
         @Override
-        public long getItemId(int position) {
-            return position;
+        public long getItemId(int i) {
+            return i;
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int i, View view, ViewGroup viewGroup) {
+
             LayoutInflater inflater = getLayoutInflater();
-            View view = inflater.inflate(R.layout.quizzes_listitem, null);
-            TextView grade = view.findViewById(R.id.grade);
-            TextView quiz = view.findViewById(R.id.quiz);
-            RelativeLayout item = view.findViewById(R.id.item);
+            View v = inflater.inflate(R.layout.quizzes_listitem, null);
 
+            TextView grade = v.findViewById(R.id.grade);
+            TextView quiz = v.findViewById(R.id.quiz);
+            RelativeLayout item = v.findViewById(R.id.item);
 
-            quiz.setText(arr.get(position));
+            quiz.setText(arr.get(i));
 
-            if(showGrade)
+            if (showGrade) {
                 grade.setVisibility(View.VISIBLE);
-            else
+            } else {
                 grade.setVisibility(View.GONE);
+            }
 
             if (solvedQuizzes) {
                 item.setOnClickListener(view1 -> {
                     Intent intent = new Intent(ListQuizzes.this, Result.class);
-                    intent.putExtra("Quiz ID", ids.get(position));
+                    intent.putExtra("Quiz ID", ids.get(i));
                     startActivity(intent);
                 });
             } else if (createdQuizzes) {
                 item.setOnClickListener(view1 -> {
                     Intent intent = new Intent(ListQuizzes.this, ListQuizzes.class);
                     intent.putExtra("Operation", "List Quiz Grades");
-                    intent.putExtra("Quiz ID", ids.get(position));
-                    intent.putExtra("Quiz Title", arr.get(position));
+                    intent.putExtra("Quiz ID", ids.get(i));
+                    intent.putExtra("Quiz Title", arr.get(i));
                     startActivity(intent);
                 });
             } else if (quizGrades) {
-                grade.setText(grades.get(position));
+                grade.setText(grades.get(i));
                 item.setOnClickListener(view1 -> {
                     Intent intent = new Intent(ListQuizzes.this, Result.class);
                     intent.putExtra("Quiz ID", quizID);
-                    intent.putExtra("User ID", ids.get(position));
+                    intent.putExtra("User UID", ids.get(i));
                     startActivity(intent);
                 });
             }
-            return view;
+
+            return v;
         }
     }
+
 }

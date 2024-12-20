@@ -92,8 +92,8 @@ public class Exam extends AppCompatActivity {
             int totalPoints = oldTotalPoints;
             int points = 0;
             for(int i=0; i<data.length; i++){
-                ref.child(String.valueOf((i+1))).setValue(data[i].getSeletedAnswer());
-                if(data[i].getSeletedAnswer() == data[i].getCorrectAnswer()){
+                ref.child(String.valueOf((i+1))).setValue(data[i].getSelectedAnswer());
+                if(data[i].getSelectedAnswer() == data[i].getCorrectAnswer()){
                     points++;
                     totalPoints++;
                 }
@@ -149,22 +149,22 @@ public class Exam extends AppCompatActivity {
             option4.setText(data[position].getOption4());
 
             option1.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if(isChecked) data[position].setSeletedAnswer(1);
+                if(isChecked) data[position].setSelectedAnswer(1);
             });
 
             option2.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if(isChecked) data[position].setSeletedAnswer(2);
+                if(isChecked) data[position].setSelectedAnswer(2);
             });
 
             option3.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if(isChecked) data[position].setSeletedAnswer(3);
+                if(isChecked) data[position].setSelectedAnswer(3);
             });
 
             option4.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if(isChecked) data[position].setSeletedAnswer(4);
+                if(isChecked) data[position].setSelectedAnswer(4);
             });
 
-            switch (data[position].getSeletedAnswer()){
+            switch (data[position].getSelectedAnswer()){
                 case 1:
                     option1.setChecked(true);
                     break;

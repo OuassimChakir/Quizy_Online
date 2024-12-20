@@ -14,9 +14,6 @@ xmlns:tools="http://schemas.android.com/tools">
     tools:targetApi="31">
     <activity
         android:name=".MainActivity"
-        android:exported="false" />
-    <activity
-        android:name=".MainActivity"
         android:exported="true"
         android:label="@string/title_activity_main"
         android:theme="@style/Theme.quizy"
@@ -27,6 +24,12 @@ xmlns:tools="http://schemas.android.com/tools">
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
     </activity>
+    <activity android:name=".ListQuizzes"/>
+    <activity android:name=".Result"/>
+    <activity android:name=".Exam"/>
+    <activity android:name=".ExamEditor"/>
+    <activity android:name=".Home"/>
+    <activity android:name=".Signup"/>
 </application>
 
 </manifest>

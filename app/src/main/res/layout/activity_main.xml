@@ -38,7 +38,8 @@
             android:imeOptions="actionNext"
             android:layout_marginBottom="15dp"
             android:layout_marginTop="100dp"
-            android:hint="email" />
+            android:hint="email"
+            android:textColorHint="@color/black"/>
 
         <EditText
             android:id="@+id/password"
@@ -51,7 +52,8 @@
             android:inputType="textPassword"
             android:imeOptions="actionDone"
             android:layout_marginBottom="15dp"
-            android:hint="Password" />
+            android:hint="Password"
+            android:textColorHint="@color/black"/>
 
         <Button
             android:id="@+id/login"

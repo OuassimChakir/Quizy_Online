@@ -45,11 +45,11 @@ public class ExamEditor extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_exam_editor);
 
         Bundle b = getIntent().getExtras();
         String quizTitle = b.getString("Quiz Title");
+
         TextView title = findViewById(R.id.title);
         title.setText(quizTitle);
 
@@ -59,17 +59,17 @@ public class ExamEditor extends AppCompatActivity {
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.child("Quizzes").hasChild("Last ID")){
+                if (snapshot.child("Quizzes").hasChild("Last ID")) {
                     String lID = snapshot.child("Quizzes").child("Last ID").getValue().toString();
-                    quizID = Integer.parseInt(lID) + 1;
-                }else{
+                    quizID = Integer.parseInt(lID)+1;
+                } else {
                     quizID = 100000;
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ExamEditor.this, "Can't Connect", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ExamEditor.this, "Can't connect", Toast.LENGTH_SHORT).show();
             }
         };
         database.addValueEventListener(listener);
@@ -85,35 +85,39 @@ public class ExamEditor extends AppCompatActivity {
         itemTouchHelper.attachToRecyclerView(listview);
 
         submit.setOnClickListener(v -> {
-            DatabaseReference quizRef = database.child("Quizzes");
-            quizRef.child("Last ID").setValue(quizID);
-            quizRef.child("Title").setValue(quizTitle);
-            quizRef.child("Total Points").setValue(data.size());
-
-            DatabaseReference questionsRef = quizRef.child(String.valueOf(quizID)).child("Questions");
-            for (int i = 0; i < data.size(); i++){
+            DatabaseReference ref = database.child("Quizzes");
+            ref.child("Last ID").setValue(quizID);
+            ref.child(String.valueOf(quizID)).child("Title").setValue(quizTitle);
+            ref.child(String.valueOf(quizID)).child("Total Questions").setValue(data.size());
+            DatabaseReference qRef = ref.child(String.valueOf(quizID)).child("Questions");
+            for (int i=0;i<data.size();i++) {
                 String p = String.valueOf(i);
-                questionsRef.child(p).child("Question").setValue(data.get(i).getQuestion());
-                questionsRef.child(p).child("Option 1").setValue(data.get(i).getOption1());
-                questionsRef.child(p).child("Option 2").setValue(data.get(i).getOption2());
-                questionsRef.child(p).child("Option 3").setValue(data.get(i).getOption3());
-                questionsRef.child(p).child("Option 4").setValue(data.get(i).getOption4());
-                questionsRef.child(p).child("Ans").setValue(data.get(i).getCorrectAnswer());
+                qRef.child(p).child("Question").setValue(data.get(i).getQuestion());
+                qRef.child(p).child("Option 1").setValue(data.get(i).getOption1());
+                qRef.child(p).child("Option 2").setValue(data.get(i).getOption2());
+                qRef.child(p).child("Option 3").setValue(data.get(i).getOption3());
+                qRef.child(p).child("Option 4").setValue(data.get(i).getOption4());
+                qRef.child(p).child("Ans").setValue(data.get(i).getCorrectAnswer());
             }
-            database.child("Users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Quizzes Created").child(String.valueOf(quizID)).setValue("");
+            database.child("Users").child(
+                            FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .child("Quizzes Created").child(String.valueOf(quizID))
+                    .setValue("");
 
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("Quiz ID", String.valueOf(quizID));
             clipboard.setPrimaryClip(clip);
-            Toast.makeText(this, "Your quiz id : "+ quizID + " copied to clipboard", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Your quiz id : "+quizID+" copied to clipboard",
+                    Toast.LENGTH_SHORT).show();
             finish();
         });
+
     }
 
     ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
         @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder dragger, @NonNull RecyclerView.ViewHolder target) {
-            int position_dragged = dragger.getAdapterPosition();
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder dragged, @NonNull RecyclerView.ViewHolder target) {
+            int position_dragged = dragged.getAdapterPosition();
             int position_target = target.getAdapterPosition();
 
             Collections.swap(data, position_dragged, position_target);
@@ -125,10 +129,10 @@ public class ExamEditor extends AppCompatActivity {
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {}
     };
 
-    public static class CustomAdapter extends RecyclerView.Adapter<ExamEditor.CustomAdapter.ViewHolder>
-    {
+    public static class CustomAdapter extends RecyclerView.Adapter<ExamEditor.CustomAdapter.ViewHolder> {
 
         private final ArrayList<Question> arr;
+
         public static class ViewHolder extends RecyclerView.ViewHolder {
             private final EditText question;
             private final RadioButton option1rb;
@@ -142,7 +146,7 @@ public class ExamEditor extends AppCompatActivity {
             private final LinearLayout new_question;
             private final RadioGroup radio_group;
 
-            public ViewHolder(View view){
+            public ViewHolder(View view) {
                 super(view);
                 question = view.findViewById(R.id.question);
                 option1rb = view.findViewById(R.id.option1rb);
@@ -202,14 +206,15 @@ public class ExamEditor extends AppCompatActivity {
             }
         }
 
-        public CustomAdapter(ArrayList<Question> data){
+        public CustomAdapter(ArrayList<Question> data) {
             arr = data;
         }
 
         @NonNull
         @Override
         public CustomAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.question_editor, parent, false);
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.question_editor, parent, false);
             return new ViewHolder(view);
         }
 
@@ -223,7 +228,7 @@ public class ExamEditor extends AppCompatActivity {
             holder.getOption3et().setText(data.get(position).getOption3());
             holder.getOption4et().setText(data.get(position).getOption4());
 
-            switch (arr.get(position).getCorrectAnswer()){
+            switch (data.get(position).getCorrectAnswer()) {
                 case 1:
                     holder.getOption1rb().setChecked(true);
                     break;
@@ -240,80 +245,75 @@ public class ExamEditor extends AppCompatActivity {
 
             holder.getQuestion().addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void afterTextChanged(Editable s) {
-                    data.get(position).setQuestion(s.toString());
+                public void afterTextChanged(Editable editable) {
+                    data.get(position).setQuestion(editable.toString());
                 }
             });
+
             holder.getOption1et().addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void afterTextChanged(Editable s) {
-                    data.get(position).setOption1(s.toString());
+                public void afterTextChanged(Editable editable) {
+                    data.get(position).setOption1(editable.toString());
                 }
             });
 
             holder.getOption2et().addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void afterTextChanged(Editable s) {
-                    data.get(position).setOption2(s.toString());
+                public void afterTextChanged(Editable editable) {
+                    data.get(position).setOption2(editable.toString());
                 }
             });
 
             holder.getOption3et().addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void afterTextChanged(Editable s) {
-                    data.get(position).setOption3(s.toString());
+                public void afterTextChanged(Editable editable) {
+                    data.get(position).setOption3(editable.toString());
                 }
             });
 
             holder.getOption4et().addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
                 @Override
-                public void afterTextChanged(Editable s) {
-                    data.get(position).setOption4(s.toString());
+                public void afterTextChanged(Editable editable) {
+                    data.get(position).setOption4(editable.toString());
                 }
             });
 
-            holder.getRadio_group().setOnCheckedChangeListener((group, checkedId) -> {
-                if (holder.getOption1rb().isChecked()){
-                    data.get(position).setCorrectAnswer(1);
-                }
-                else if (holder.getOption2rb().isChecked()){
-                    data.get(position).setCorrectAnswer(2);
-                }
-                else if (holder.getOption3rb().isChecked()){
-                    data.get(position).setCorrectAnswer(3);
-                }
-                else if (holder.getOption4rb().isChecked()) {
-                    data.get(position).setCorrectAnswer(4);
-                }
+            holder.getRadio_group().setOnCheckedChangeListener((radioGroup, i) -> {
+                if (holder.getOption1rb().isChecked()) data.get(position).setCorrectAnswer(1);
+                if (holder.getOption2rb().isChecked()) data.get(position).setCorrectAnswer(2);
+                if (holder.getOption3rb().isChecked()) data.get(position).setCorrectAnswer(3);
+                if (holder.getOption4rb().isChecked()) data.get(position).setCorrectAnswer(4);
             });
 
-            if ( position == (data.size() - 1)){
+            if (position==(data.size()-1)) {
                 holder.getNew_question().setVisibility(View.VISIBLE);
+
                 holder.getNew_question().setOnClickListener(v -> {
                     data.add(new Question());
                     notifyDataSetChanged();
                 });
             }
+
         }
 
         @Override
@@ -321,4 +321,5 @@ public class ExamEditor extends AppCompatActivity {
             return data.size();
         }
     }
+
 }
